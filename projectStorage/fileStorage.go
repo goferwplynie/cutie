@@ -1,6 +1,7 @@
 package projectstorage
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/goferwplynie/cutie/logger"
@@ -8,6 +9,12 @@ import (
 )
 
 type FileStorage struct {
+	appDir    string
+	configDir string
+}
+
+type projectDB struct {
+	Projects []project.Project `json:"projects"`
 }
 
 func New(storageType string) ProjectStorage {
@@ -15,7 +22,18 @@ func New(storageType string) ProjectStorage {
 }
 
 func newFs() *FileStorage {
-	return &FileStorage{}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	conf, err := os.UserConfigDir()
+	if err != nil {
+		panic(err)
+	}
+	return &FileStorage{
+		appDir:    home + "/.cutie",
+		configDir: conf + "/cutie",
+	}
 }
 
 func (f *FileStorage) Setup() error {
@@ -41,8 +59,37 @@ func (f *FileStorage) Setup() error {
 
 }
 
-func (f *FileStorage) SaveProject(project project.Project) {
-	panic("not implemented") // TODO: Implement
+func (f *FileStorage) SaveProject(prj *project.Project) error {
+	logger.Cute(f.appDir + "/projects.json")
+	file, err := os.OpenFile(f.appDir+"/projects.json", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var projects projectDB
+	info, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	if info.Size() > 0 {
+		err = json.NewDecoder(file).Decode(&projects)
+		if err != nil {
+			return err
+		}
+	} else {
+		projects = projectDB{
+			Projects: make([]project.Project, 0),
+		}
+	}
+	projects.Projects = append(projects.Projects, *prj)
+	file.Truncate(0)
+	file.Seek(0, 0)
+	err = json.NewEncoder(file).Encode(projects)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func (f *FileStorage) GetProject(name string) (_ project.Project) {
 	panic("not implemented") // TODO: Implement

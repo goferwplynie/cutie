@@ -4,6 +4,7 @@
 ## Usage
 Starting new project :33
 `cutie init <path> <name> --dl 2025-11-25 --template go.json --reminder 3`
+-v - verbose mode. place after `cutie`
 --dl - deadline in `YYYY-MM-DD` format
 --template - template name stored in config directory
 --reminder - after how many days `cutie remind` should give reminder message for this project
