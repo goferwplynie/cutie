@@ -16,6 +16,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&logger.Verbose, "verbose", "v", false, "enable verbose mode")
+	rootCmd.AddCommand(projectsCmd)
 }
 
 func Execute() {
