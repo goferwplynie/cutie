@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/goferwplynie/cutie/logger"
 )
 
 func Resolvepath(path string) (string, error) {
@@ -23,7 +21,6 @@ func Resolvepath(path string) (string, error) {
 		return "", err
 	}
 	path = fmt.Sprintf("%v%c%v", wd, filepath.Separator, path)
-	logger.Cute(path)
 
 	newPath, err := filepath.Abs(path)
 	if err != nil {

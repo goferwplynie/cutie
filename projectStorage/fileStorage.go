@@ -60,7 +60,6 @@ func (f *FileStorage) Setup() error {
 }
 
 func (f *FileStorage) SaveProject(prj *project.Project) error {
-	logger.Cute(f.appDir + "/projects.json")
 	file, err := os.OpenFile(f.appDir+"/projects.json", os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
