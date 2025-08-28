@@ -7,4 +7,5 @@ type ProjectStorage interface {
 	SaveProject(project *project.Project) error
 	GetProject(name string) project.Project
 	GetProjects() []project.Project
+	GetTemplateFolder() string
 }

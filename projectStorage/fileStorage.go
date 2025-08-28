@@ -90,6 +90,11 @@ func (f *FileStorage) SaveProject(prj *project.Project) error {
 	}
 	return nil
 }
+
+func (f *FileStorage) GetTemplateFolder() string {
+	return f.appDir
+}
+
 func (f *FileStorage) GetProject(name string) (_ project.Project) {
 	panic("not implemented") // TODO: Implement
 }
