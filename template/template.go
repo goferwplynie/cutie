@@ -2,6 +2,7 @@ package template
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,52 +18,54 @@ type Template struct {
 
 func LoadTemplate(path string) (Template, error) {
 	var template Template
-	_, err := os.Stat(path)
-	if err != nil {
-		notExists := os.IsNotExist(err)
-		if notExists {
-			logger.Error("template does not exist :c")
-			return template, err
-		}
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return template, fmt.Errorf("template does not exist: %w", err)
 	}
+
 	file, err := os.Open(path)
 	if err != nil {
-		logger.Error("failed opening template :c")
-		return template, err
+		return template, fmt.Errorf("failed opening template: %w", err)
 	}
 	defer file.Close()
 
 	if err = json.NewDecoder(file).Decode(&template); err != nil {
-		logger.Error("failed reading template :c")
-		return template, err
+		return template, fmt.Errorf("failed reading template: %w", err)
 	}
+
 	return template, nil
 }
 
-func (t Template) Use(path string, project_name string) error {
+func (t Template) Use(basePath string, projectName string) error {
 	for _, v := range t.Files {
-		logger.Cute(v)
 		idx := strings.LastIndex(v, string(filepath.Separator))
 		if idx == -1 {
-			os.Create(path + string(filepath.Separator) + v)
+			os.Create(basePath + string(filepath.Separator) + v)
 			continue
 		}
 		paths := v[:idx]
 		file := v[idx+1:]
-		if err := os.MkdirAll(path+string(filepath.Separator)+paths, 0755); err != nil {
+		if err := os.MkdirAll(basePath+string(filepath.Separator)+paths, 0755); err != nil {
 			return err
 		}
 		if file != "" {
-			os.Create(path + string(filepath.Separator) + v)
+			os.Create(basePath + string(filepath.Separator) + v)
 		}
 	}
-	for _, v := range t.Commands {
-		v = strings.ReplaceAll(v, "$NAME", project_name)
-		command := exec.Command("sh", "-c", v)
-		command.Dir = path
-		if err := command.Run(); err != nil {
-			return err
+
+	for _, cmd := range t.Commands {
+		cmd = strings.ReplaceAll(cmd, "$NAME", projectName)
+
+		logger.Cute(fmt.Sprintf("Executing: %s", cmd))
+
+		command := exec.Command("sh", "-c", cmd)
+		command.Dir = basePath
+
+		output, err := command.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("command failed: %s, error: %w, output: %s", cmd, err, string(output))
 		}
 	}
+
 	return nil
 }
