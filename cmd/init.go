@@ -46,13 +46,15 @@ func startProject(cmd *cobra.Command, args []string) {
 	}
 	name := args[1]
 
-	if deadline, err = time.Parse("2006-01-02", dl); err != nil {
-		logger.Error(fmt.Sprintf("error while parsing deadline date ;c : %v", err))
-		return
+	if dl != "" {
+		if deadline, err = time.Parse("2006-01-02", dl); err != nil {
+			logger.Error(fmt.Sprintf("error while parsing deadline date ;c : %v", err))
+			return
+		}
 	}
 	reminderDuration := time.Duration(reminder) * 24 * time.Hour
 
-	prj := project.New(deadline, name, path, reminderDuration)
+	prj := project.New(deadline, name, filepath.Join(path, name), reminderDuration)
 
 	storage := projectstorage.New("")
 	if err = storage.Setup(); err != nil {
@@ -81,4 +83,9 @@ func startProject(cmd *cobra.Command, args []string) {
 	storage.SaveProject(prj)
 
 	logger.Cute(fmt.Sprintf("your cute '%v' project has been created successfully and saved to storage. hope you don't abandon it cutie ;3", name))
+
+	if err = storage.SyncReminders(true); err != nil {
+		logger.Error(fmt.Sprintf("failed syncing reminders :c : %v", err))
+	}
+
 }

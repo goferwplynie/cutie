@@ -6,6 +6,7 @@ type ProjectStorage interface {
 	Setup() error
 	SaveProject(project *project.Project) error
 	GetProject(name string) project.Project
-	GetProjects() []project.Project
+	GetProjects() ([]project.Project, error)
 	GetTemplateFolder() string
+	SyncReminders(forced bool) error
 }
