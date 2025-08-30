@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"time"
@@ -20,6 +21,10 @@ var (
 	dl       string
 	reminder int
 	tmpl     string
+	noGit    bool
+	branch   string
+	commit   string
+	remote   string
 )
 
 var initCmd = &cobra.Command{
@@ -35,6 +40,13 @@ func init() {
 	initCmd.Flags().StringVar(&dl, "dl", "", "project deadline (YYYY-MM-DD)")
 	initCmd.Flags().IntVar(&reminder, "reminder", 0, "reminder in days")
 	initCmd.Flags().StringVar(&tmpl, "template", "", "template to use while creating project")
+
+	//git setup flags
+
+	initCmd.Flags().BoolVarP(&noGit, "nogit", "G", false, "dont use git in this project")
+	initCmd.Flags().StringVar(&branch, "branch", "", "create main git branch")
+	initCmd.Flags().StringVar(&commit, "commit", "", "stage and commit changes with some message")
+	initCmd.Flags().StringVar(&remote, "remote", "", "add remote for git")
 }
 
 func startProject(cmd *cobra.Command, args []string) {
@@ -88,4 +100,44 @@ func startProject(cmd *cobra.Command, args []string) {
 		logger.Error(fmt.Sprintf("failed syncing reminders :c : %v", err))
 	}
 
+	if !noGit {
+		if err := setupGit(prj.Path); err != nil {
+			logger.Error(fmt.Sprintf("failed seting up git TwT : %v", err))
+		}
+	}
+}
+
+func runGit(path string, args ...string) error {
+	cmd := exec.Command("git", args...)
+	cmd.Dir = path
+	return cmd.Run()
+}
+
+func setupGit(path string) error {
+	if err := runGit(path, "init"); err != nil {
+		return fmt.Errorf("can't setup git repository: %v", err)
+	}
+
+	if branch != "" {
+		if err := runGit(path, "branch", "-M", branch); err != nil {
+			return fmt.Errorf("can't setup main branch: %v", err)
+		}
+
+	}
+	if commit != "" {
+		if err := runGit(path, "add", "."); err != nil {
+			return fmt.Errorf("can't stage changes: %v", err)
+		}
+		if err := runGit(path, "commit", "-m", commit); err != nil {
+			return fmt.Errorf("can't commit changes: %v", err)
+		}
+
+	}
+	if remote != "" {
+		if err := runGit(path, "remote", "add", "origin", remote); err != nil {
+			return fmt.Errorf("can't add remote: %v", err)
+		}
+	}
+
+	return nil
 }

@@ -35,6 +35,10 @@ cutie init <path> <name> --dl 2025-11-25 --template go.json --reminder 3 -v
 | `--dl`       | Deadline in `YYYY-MM-DD` format |
 | `--template` | Template name stored in the config directory |
 | `--reminder` | After how many days `cutie remind` should give a reminder message for this project |
+| `--nogit` | dont create git repository (created by default) |
+| `--branch` | add main branch (pass branch name) |
+| `--commit` | create initial commit (pass commit message) |
+| `--remote` | add remote (pass remote url) |
 
 `cutie projects`
 shows all projects in a pretty table :33
