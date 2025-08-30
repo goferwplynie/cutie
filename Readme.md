@@ -51,7 +51,6 @@ A project is added to reminders if:
 `--nc` — turn off colored output (color is on by default)
 
 💡 You can run this command automatically when your shell starts. It only checks for reminders in the file and doesn’t add new ones unless the date changed. Reminders are always refreshed after adding a new project or when the date changes.
-checks the reminders file and displays some encouraging texts for your project.
 
 example output of `cutie remind` :33 :
 ```
