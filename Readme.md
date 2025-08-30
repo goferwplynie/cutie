@@ -44,15 +44,14 @@ Checks the reminders file and displays encouraging messages for your projects.
 
 A project is added to reminders if:
 
-- It hasn’t been modified for the number of days set with --reminder, or
+- It hasn’t been modified for the number of days set with `--reminder`, or
 
 - There is one week left until its deadline
 
---nc — turn off colored output (color is on by default)
+`--nc` — turn off colored output (color is on by default)
 
 💡 You can run this command automatically when your shell starts. It only checks for reminders in the file and doesn’t add new ones unless the date changed. Reminders are always refreshed after adding a new project or when the date changes.
 checks the reminders file and displays some encouraging texts for your project.
-project gets into reminders file after it wasnt modified for the number of days set with `--reminder` flag or if there is one week left till deadline
 
 example output of `cutie remind` :33 :
 ```
