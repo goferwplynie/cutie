@@ -66,6 +66,18 @@ func (f *FileStorage) Setup() error {
 			return err
 		}
 	}
+	_, err = os.Stat(f.configDir)
+	if err != nil {
+		notExists := os.IsNotExist(err)
+		if notExists {
+			if err := os.MkdirAll(f.configDir+"/templates", 0755); err != nil {
+				return err
+			}
+			logger.Cute("created config directory :3")
+		} else {
+			return err
+		}
+	}
 	return nil
 
 }
@@ -103,7 +115,7 @@ func (f *FileStorage) SaveProject(prj *project.Project) error {
 }
 
 func (f *FileStorage) GetTemplateFolder() string {
-	return f.appDir
+	return f.configDir + "/templates"
 }
 
 func (f *FileStorage) SyncReminders(forced bool) error {

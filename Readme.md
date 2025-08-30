@@ -17,7 +17,7 @@ go install github.com/goferwplynie/cutie@latest
 ```bash
 git clone https://github.com/goferwplynie/cutie.git
 cd cutie
-go build -o cutie
+makepkg -si
 
 ```
 
@@ -37,9 +37,9 @@ cutie init <path> <name> --dl 2025-11-25 --template go.json --reminder 3 -v
 | `--reminder` | After how many days `cutie remind` should give a reminder message for this project |
 
 `cutie projects`
-shows all projects in pretty table :33
+shows all projects in a pretty table :33
 
-`cutie remind []--nc]`
+`cutie remind [--nc]`
 Checks the reminders file and displays encouraging messages for your projects.
 
 A project is added to reminders if:
@@ -53,6 +53,15 @@ A project is added to reminders if:
 💡 You can run this command automatically when your shell starts. It only checks for reminders in the file and doesn’t add new ones unless the date changed. Reminders are always refreshed after adding a new project or when the date changes.
 checks the reminders file and displays some encouraging texts for your project.
 project gets into reminders file after it wasnt modified for the number of days set with `--reminder` flag or if there is one week left till deadline
+
+example output of `cutie remind` :33 :
+```
+Projects that need some love:
+   Your project librusApi is lonely~ a little attention will make it happy!
+Upcoming Deadlines:
+   Don’t forget! librusApi deadline is getting close (3 days left)~ cheer up!
+   cutie is due in 2 days! Keep going, you’re doing great~
+```
 
 ---
 
@@ -74,6 +83,23 @@ example go.json file:
 }
 
 ```
+templates are stored in config directory `cutie/templates`
+
 available variables in templates:
 - `$NAME` - project name
 
+---
+
+## Optional: auto-run cutie remind on terminal startup
+
+To always check your project reminders, you can add this line to your shell profile (~/.bashrc, ~/.zshrc, etc.):
+```bash
+cutie remind
+
+```
+
+---
+
+## Future updates
+
+for future i plan making better project template functionality by defining them with just files and folders. Also i plan on adding more variables for templates including env variables :3c
