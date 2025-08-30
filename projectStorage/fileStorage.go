@@ -44,6 +44,7 @@ func newFs() *FileStorage {
 	if err != nil {
 		panic(err)
 	}
+	logger.Cute(conf)
 	return &FileStorage{
 		appDir:    home + "/.cutie",
 		configDir: conf + "/cutie",

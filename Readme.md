@@ -84,6 +84,7 @@ example go.json file:
 
 ```
 templates are stored in config directory `cutie/templates`
+if it's not present just create it ;3
 
 available variables in templates:
 - `$NAME` - project name
