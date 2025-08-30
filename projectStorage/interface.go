@@ -9,4 +9,5 @@ type ProjectStorage interface {
 	GetProjects() ([]project.Project, error)
 	GetTemplateFolder() string
 	SyncReminders(forced bool) error
+	GetReminders() (RemindersCache, error)
 }

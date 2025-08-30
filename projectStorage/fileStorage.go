@@ -204,6 +204,24 @@ func (f *FileStorage) GetProjects() ([]project.Project, error) {
 	return projectsDB.Projects, nil
 }
 
+func (f *FileStorage) GetReminders() (RemindersCache, error) {
+	var reminders RemindersCache
+
+	file, err := os.OpenFile(filepath.Join(f.appDir, "reminders.json"), os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return reminders, fmt.Errorf("cant open reminders file :c : %v", err)
+	}
+	defer file.Close()
+
+	err = json.NewDecoder(file).Decode(&reminders)
+	if err != nil {
+		return reminders, err
+	}
+
+	return reminders, nil
+
+}
+
 func sameDay(a, b time.Time) bool {
 	ay, am, ad := a.Date()
 	by, bm, bd := b.Date()
