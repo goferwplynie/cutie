@@ -1,5 +1,5 @@
 pkgname=cutie
-pkgver=0.2.0
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="A cute CLI project manager to organize your projects :33"
 arch=('any')

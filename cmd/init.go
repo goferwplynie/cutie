@@ -91,8 +91,16 @@ func startProject(cmd *cobra.Command, args []string) {
 		}
 
 	}
-
-	storage.SaveProject(prj)
+	projects, err := storage.GetProjects()
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+	projects = append(projects, *prj)
+	if err = storage.SaveProjects(projects); err != nil {
+		logger.Error(err)
+		return
+	}
 
 	logger.Cute(fmt.Sprintf("your cute '%v' project has been created successfully and saved to storage. hope you don't abandon it cutie ;3", name))
 

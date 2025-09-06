@@ -3,12 +3,15 @@ package projectstorage
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/goferwplynie/cutie/logger"
 	"github.com/goferwplynie/cutie/project"
+	ignore "github.com/sabhiram/go-gitignore"
 )
 
 type RemindersCache struct {
@@ -83,40 +86,28 @@ func (f *FileStorage) Setup() error {
 
 }
 
-func (f *FileStorage) SaveProject(prj *project.Project) error {
-	file, err := os.OpenFile(f.appDir+"/projects.json", os.O_RDWR|os.O_CREATE, 0644)
+func (f *FileStorage) GetTemplateFolder() string {
+	return f.configDir + "/templates"
+}
+
+func (f *FileStorage) SaveProjects(projects []project.Project) error {
+	file, err := os.OpenFile(filepath.Join(f.appDir, "projects.json"), os.O_WRONLY, 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("cant read projects file TwT: %v", err)
 	}
 	defer file.Close()
 
-	var projects projectDB
-	info, err := file.Stat()
-	if err != nil {
-		return err
+	prjDB := projectDB{
+		Projects: projects,
 	}
-	if info.Size() > 0 {
-		err = json.NewDecoder(file).Decode(&projects)
-		if err != nil {
-			return err
-		}
-	} else {
-		projects = projectDB{
-			Projects: make([]project.Project, 0),
-		}
-	}
-	projects.Projects = append(projects.Projects, *prj)
+
 	file.Truncate(0)
 	file.Seek(0, 0)
-	err = json.NewEncoder(file).Encode(projects)
-	if err != nil {
-		return err
+	if err := json.NewEncoder(file).Encode(prjDB); err != nil {
+		return fmt.Errorf("failed marshaling json QwQ: %v", err)
 	}
-	return nil
-}
 
-func (f *FileStorage) GetTemplateFolder() string {
-	return f.configDir + "/templates"
+	return nil
 }
 
 func (f *FileStorage) SyncReminders(forced bool) error {
@@ -158,12 +149,13 @@ func (f *FileStorage) SyncReminders(forced bool) error {
 
 	for _, p := range projects {
 		if p.Reminder != 0 {
-			info, err := os.Stat(p.Path)
+			logger.Cute(p.Name)
+			lastUpdate, err := f.checkLastUpdate(p.Path)
 			if err != nil {
 				return err
 			}
-			lastMod := info.ModTime()
-			if time.Since(lastMod) > p.Reminder {
+
+			if time.Since(lastUpdate) > p.Reminder {
 				reminders.Reminders = append(reminders.Reminders, p.Name)
 			}
 
@@ -187,9 +179,50 @@ func (f *FileStorage) SyncReminders(forced bool) error {
 	return nil
 }
 
-func (f *FileStorage) GetProject(name string) (_ project.Project) {
-	panic("not implemented") // TODO: Implement
+func (f *FileStorage) checkLastUpdate(base string) (time.Time, error) {
+	var lastUpdate time.Time
+
+	ig, err := ignore.CompileIgnoreFile(filepath.Join(base + string(filepath.Separator) + ".gitignore"))
+	if err != nil {
+		return lastUpdate, err
+	}
+
+	filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		path, err = filepath.Rel(base, path)
+		if err != nil {
+			return err
+		}
+		logger.Cute(path)
+		if ig.MatchesPath(path) || strings.Contains(path, ".git") {
+			if d.IsDir() {
+				return filepath.SkipDir
+			} else {
+				return nil
+			}
+		}
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+
+		mod := info.ModTime()
+
+		if mod.After(lastUpdate) {
+			lastUpdate = mod
+		}
+		logger.Cute(mod)
+		logger.Cute(lastUpdate)
+		return nil
+	})
+	return lastUpdate, nil
 }
+
+func (f *FileStorage) getIgnored(path string) ([]string, error) {
+	ignored := []string{".git"}
+
+	return ignored, nil
+}
+
 func (f *FileStorage) GetProjects() ([]project.Project, error) {
 	var projects []project.Project
 	file, err := os.OpenFile(f.appDir+"/projects.json", os.O_RDWR|os.O_CREATE, 0644)
