@@ -54,10 +54,15 @@ A project is added to reminders if:
 
 `--nc` — turn off colored output (color is on by default)
 
-`cutie remove <project name>`
-rmeoves project from storage and stops displaying reminders for it :3
-
 💡 You can run this command automatically when your shell starts. It only checks for reminders in the file and doesn’t add new ones unless the date changed. Reminders are always refreshed after adding a new project or when the date changes.
+
+`cutie remove <project name>`
+removes project from storage and stops displaying reminders for it :3
+
+`cutie freeze <project name>`
+`cutie unfreeze <project name>`
+freeze and unfreeze projects =^w^=. When project is frozen reminders and deadlines won't show up when `cutie remind` is called. You can always unfreeze it and return to normal state.
+
 
 example output of `cutie remind` :33 :
 ```

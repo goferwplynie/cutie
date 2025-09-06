@@ -148,8 +148,10 @@ func (f *FileStorage) SyncReminders(forced bool) error {
 	reminders.Deadlines = []Deadline{}
 
 	for _, p := range projects {
+		if p.Archived {
+			continue
+		}
 		if p.Reminder != 0 {
-			logger.Cute(p.Name)
 			lastUpdate, err := f.checkLastUpdate(p.Path)
 			if err != nil {
 				return err
@@ -192,7 +194,6 @@ func (f *FileStorage) checkLastUpdate(base string) (time.Time, error) {
 		if err != nil {
 			return err
 		}
-		logger.Cute(path)
 		if ig.MatchesPath(path) || strings.Contains(path, ".git") {
 			if d.IsDir() {
 				return filepath.SkipDir
@@ -210,17 +211,9 @@ func (f *FileStorage) checkLastUpdate(base string) (time.Time, error) {
 		if mod.After(lastUpdate) {
 			lastUpdate = mod
 		}
-		logger.Cute(mod)
-		logger.Cute(lastUpdate)
 		return nil
 	})
 	return lastUpdate, nil
-}
-
-func (f *FileStorage) getIgnored(path string) ([]string, error) {
-	ignored := []string{".git"}
-
-	return ignored, nil
 }
 
 func (f *FileStorage) GetProjects() ([]project.Project, error) {

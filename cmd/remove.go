@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/goferwplynie/cutie/logger"
@@ -15,8 +14,6 @@ var removeCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Long:  `removes project from lis tand stops tracking reminders and deadlines`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("remove called")
-
 		storage := projectstorage.New("")
 
 		if err := storage.Setup(); err != nil {

@@ -1,40 +1,26 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/goferwplynie/cutie/logger"
 	"github.com/spf13/cobra"
 )
 
-// freezeCmd represents the freeze command
 var freezeCmd = &cobra.Command{
 	Use:   "freeze",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "freeze project",
+	Long: `freeze project to not show reminders for it.
+	Use it when you know that you won't be working on it for some time and don't want to see reminders.
+	You can unfreeze it at any time
+	`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("freeze called")
+		if err := SetFreeze(args[0], true); err != nil {
+			logger.Error(err)
+			return
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(freezeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// freezeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// freezeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
